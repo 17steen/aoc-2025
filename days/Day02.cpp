@@ -60,7 +60,7 @@ std::vector<std::int64_t> Compute_Invalid_Ids(const Range range)
 
     const auto str = std::string_view{buffer.begin(), end};
     if constexpr (Part == Selected_Part::Part2) {
-      const auto half = str.length() / 2;
+      const auto half = static_cast<int>(str.length() / 2);
       for (int repeat_size = 1; repeat_size <= half; ++repeat_size)
       {
         if (str.length() % repeat_size != 0)
@@ -71,7 +71,7 @@ std::vector<std::int64_t> Compute_Invalid_Ids(const Range range)
         const auto first_section = str.substr(0, repeat_size);
 
         bool match = false;
-        for (int section_start = repeat_size; section_start != str.length(); section_start += repeat_size)
+        for (int section_start = repeat_size; section_start != static_cast<int>(str.length()); section_start += repeat_size)
         {
           const auto next_section = str.substr(section_start, repeat_size);
 

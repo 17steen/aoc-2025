@@ -8,10 +8,12 @@ set(DAYS
         Days.hpp
         Day01.cpp
         Day02.cpp
+        Day03.cpp
 )
 
 add_library(days ${DAYS})
 target_link_libraries(days PRIVATE scn::scn fmt::fmt ctre::ctre flux::flux Catch2::Catch2)
+target_compile_options(days PRIVATE -Wall -Werror)
 
 
 add_executable(days-test ${DAYS})
