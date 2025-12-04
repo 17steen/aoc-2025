@@ -14,26 +14,8 @@
 
 namespace Day03
 {
-    int Part1_One_Row(const std::string_view input)
-    {
-        const auto all_but_last = input.substr(0, input.length() - 1);
-        const auto it = std::ranges::max_element(all_but_last);
-        if (it == all_but_last.end())
-        {
-            throw std::runtime_error{"bro what"};
-        }
 
-        const auto index = std::ranges::distance(all_but_last.begin(), it);
-
-        const auto first_digit = *it - '0';
-        const auto rest = input.substr(index + 1);
-
-        const auto second_digit = std::ranges::max(rest) - '0';
-
-        return first_digit * 10 + second_digit;
-    }
-
-    constexpr auto AMOUNT_OF_BATTERIES_PART1 = 1;
+    constexpr auto AMOUNT_OF_BATTERIES_PART1 = 2;
     constexpr auto AMOUNT_OF_BATTERIES_PART2 = 12;
 
 
@@ -65,52 +47,34 @@ namespace Day03
         return resulting_number;
     }
 
-    int Part1(const std::string_view input)
-    {
-        auto sum = 0;
-        for (auto range = scn::ranges::subrange{input};
-             const auto line_result = scn::scan_value<std::string_view>(range);
-             range = line_result.value())
-        {
-            sum += Part1_One_Row(line_result->value());
-        }
-
-        return sum;
-    }
-
-    std::int64_t Part2(const std::string_view input)
-    {
-        auto sum = std::int64_t{0};
-        for (auto range = scn::ranges::subrange{input};
-             const auto line_result = scn::scan_value<std::string_view>(range);
-             range = line_result.value())
-        {
-            sum += Solve_One_Row(line_result->value());
-        }
-
-        return sum;
-    }
-
-
     std::pair<std::string, std::string> Solve(std::string_view input)
     {
-        const auto part1 = Part1(input);
-        const auto part2 = Part2(input);
+        auto part1 = std::int64_t{0};
+        auto part2 = std::int64_t{0};
+
+        for (auto range = scn::ranges::subrange{input};
+             const auto line_result = scn::scan_value<std::string_view>(range);
+             range = line_result.value())
+        {
+            part1 += Solve_One_Row<AMOUNT_OF_BATTERIES_PART1>(line_result->value());
+            part2 += Solve_One_Row<AMOUNT_OF_BATTERIES_PART2>(line_result->value());
+        }
+
         return {fmt::to_string(part1), fmt::to_string(part2)};
     } // namespace Day01
 }
 
 TEST_CASE("Day3 examples", "[aoc]")
 {
-    REQUIRE(Day03::Part1_One_Row("987654321111111") == 98);
-    REQUIRE(Day03::Part1_One_Row("811111111111119") == 89);
-    REQUIRE(Day03::Part1_One_Row("234234234234278") == 78);
-    REQUIRE(Day03::Part1_One_Row("818181911112111") == 92);
+    REQUIRE(Day03::Solve_One_Row<Day03::AMOUNT_OF_BATTERIES_PART1>("987654321111111") == 98);
+    REQUIRE(Day03::Solve_One_Row<Day03::AMOUNT_OF_BATTERIES_PART1>("811111111111119") == 89);
+    REQUIRE(Day03::Solve_One_Row<Day03::AMOUNT_OF_BATTERIES_PART1>("234234234234278") == 78);
+    REQUIRE(Day03::Solve_One_Row<Day03::AMOUNT_OF_BATTERIES_PART1>("818181911112111") == 92);
 
-    REQUIRE(Day03::Solve_One_Row("987654321111111") == 987654321111);
-    REQUIRE(Day03::Solve_One_Row("811111111111119") == 811111111119);
-    REQUIRE(Day03::Solve_One_Row("234234234234278") == 434234234278);
-    REQUIRE(Day03::Solve_One_Row("818181911112111") == 888911112111);
+    REQUIRE(Day03::Solve_One_Row<Day03::AMOUNT_OF_BATTERIES_PART2>("987654321111111") == 987654321111);
+    REQUIRE(Day03::Solve_One_Row<Day03::AMOUNT_OF_BATTERIES_PART2>("811111111111119") == 811111111119);
+    REQUIRE(Day03::Solve_One_Row<Day03::AMOUNT_OF_BATTERIES_PART2>("234234234234278") == 434234234278);
+    REQUIRE(Day03::Solve_One_Row<Day03::AMOUNT_OF_BATTERIES_PART2>("818181911112111") == 888911112111);
 
 
     static constexpr auto first_example = R"(987654321111111
@@ -118,5 +82,5 @@ TEST_CASE("Day3 examples", "[aoc]")
 234234234234278
 818181911112111)";
 
-    REQUIRE(Day03::Part1(first_example) == 357);
+    REQUIRE(Day03::Solve(first_example).first == "357");
 }
