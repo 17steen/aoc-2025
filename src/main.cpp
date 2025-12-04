@@ -12,7 +12,7 @@
 
 namespace std
 {
-    template<typename First, typename Second>
+    template <typename First, typename Second>
     inline auto format_as(const std::pair<First, Second>& pair) -> std::string
     {
         return fmt::format("{{first: {}, second: {}}}", pair.first, pair.second);
@@ -27,10 +27,13 @@ static const auto day_map =
         {
             2, [](std::string_view sv) { return fmt::to_string(Day02::Solve(sv)); },
         },
-{
-    3, [](std::string_view sv) { return fmt::to_string(Day03::Solve(sv)); },
-},
-};
+        {
+            3, [](std::string_view sv) { return fmt::to_string(Day03::Solve(sv)); },
+        },
+        {
+            4, [](std::string_view sv) { return fmt::to_string(Day04::Solve(sv)); },
+        },
+    };
 
 std::string read_all_input()
 {
