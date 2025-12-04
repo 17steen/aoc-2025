@@ -162,7 +162,6 @@ namespace Day04
                 const auto this_tile = tiles.grid[std::array{i, j}];
                 if (this_tile == Tile::Empty)
                 {
-                    fmt::print(".");
                     continue;
                 }
 
@@ -187,14 +186,8 @@ namespace Day04
                 {
                     result.grid_with_removed_rolls.grid[std::array{i, j}] = Tile::Empty;
                     result.removed_rolls_count += 1;
-                    fmt::print("x");
-                }
-                else
-                {
-                    fmt::print("{}", occupied_tiles);
                 }
             }
-            fmt::println("");
         }
 
         return result;
@@ -205,8 +198,10 @@ namespace Day04
     {
 
         const auto parsed = Tiles::Parse(input);
+#ifndef NDEBUG
         Print(parsed.grid);
         fmt::println("\n\n");
+#endif
 
         auto result = Remove_Rolls(parsed);
         const auto part1 = result.removed_rolls_count;
@@ -217,7 +212,6 @@ namespace Day04
             result = Remove_Rolls(result.grid_with_removed_rolls);
             part2 += result.removed_rolls_count;
         }
-        fmt::println("{}", part2);
 
         return {fmt::to_string(part1), fmt::to_string(part2)};
     } // namespace Day01
