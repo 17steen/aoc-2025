@@ -134,7 +134,7 @@ std::string Part2(const std::span<const Range> parsed) {
   auto unique_invalid_ids = std::unordered_set<std::int64_t>{};
   for (const auto range: parsed)
   {
-    for (const auto invalid_id: Compute_Invalid_Ids<true>(range))
+    for (const auto invalid_id: Compute_Invalid_Ids<Selected_Part::Part2>(range))
     {
       unique_invalid_ids.emplace(invalid_id);
     }
@@ -186,8 +186,8 @@ TEST_CASE("Day2 examples", "[aoc]") {
   static constexpr auto part2_example = "11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124";
   REQUIRE(Day02::Part2(Day02::Parse(part2_example)) == "4174379265");
 
-  REQUIRE(Day02::Compute_Invalid_Ids<true>(Day02::Range{95, 115}) == std::vector<std::int64_t>{99, 111});
-  REQUIRE(Day02::Compute_Invalid_Ids<true>(Day02::Range{824824821, 824824827}) == std::vector<std::int64_t>{824824824});
-  REQUIRE(Day02::Compute_Invalid_Ids<true>(Day02::Range{2121212118, 2121212124}) == std::vector<std::int64_t>{2121212121});
+  REQUIRE(Day02::Compute_Invalid_Ids<Selected_Part::Part2>(Day02::Range{95, 115}) == std::vector<std::int64_t>{99, 111});
+  REQUIRE(Day02::Compute_Invalid_Ids<Selected_Part::Part2>(Day02::Range{824824821, 824824827}) == std::vector<std::int64_t>{824824824});
+  REQUIRE(Day02::Compute_Invalid_Ids<Selected_Part::Part2>(Day02::Range{2121212118, 2121212124}) == std::vector<std::int64_t>{2121212121});
 
 }
