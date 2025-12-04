@@ -7,10 +7,17 @@ enum struct Selected_Part
     Part2,
 };
 
-namespace Day01 {
-std::pair<int, int> Solve(std::string_view);
+namespace Day01
+{
+    std::pair<int, int> Solve(std::string_view);
 }
+
 namespace Day02
 {
-std::pair<std::string, std::string> Solve(std::string_view);
+    std::pair<std::string, std::string> Solve(std::string_view);
+}
+
+namespace Day03
+{
+    std::pair<std::string, std::string> Solve(std::string_view);
 }
