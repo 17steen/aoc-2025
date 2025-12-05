@@ -34,19 +34,8 @@ namespace Day05
             return value >= begin and value <= end;
         }
 
-        [[nodiscard]] static std::pair<Range, Range> Disintersect(Range left, Range right)
-        {
-            auto [a, b] = Disintersect_Impl(left, right);
-
-            auto [new_right, new_left] = Disintersect_Impl(b, a);
-
-            return {new_left, new_right};
-
-        }
-
-        [[nodiscard]] static std::pair<Range, Range> Disintersect_Impl(Range left, Range right);
-
         bool operator==(const Range&) const = default;
+        std::strong_ordering operator<=>(const Range&) const = default;
     };
 
     using Ranges = std::vector<Range>;
@@ -54,33 +43,6 @@ namespace Day05
     std::string format_as(Range range)
     {
         return fmt::format("[{}, {}]", range.begin, range.end);
-    }
-
-    [[nodiscard]] std::pair<Range, Range> Range::Disintersect_Impl(Range left, Range right)
-    {
-        if (left.Amount_Of_Values() < 1 or right.Amount_Of_Values() < 1)
-        {
-            fmt::println("{} and {} cannot be processed", left, right);
-            return {left, right};
-        }
-
-        if (right.begin >= left.begin && right.begin <= left.end)
-        {
-            right.begin = left.begin + 1;
-            // the begining of the right range is contained in the left range
-        }
-
-        if (right.end <= left.end && right.end >= left.begin)
-        {
-            right.end = left.begin - 1;
-        }
-
-        if (right.Amount_Of_Values() < 1)
-        {
-            fmt::println("{} is a negative range", right);
-        }
-
-        return {left, right};
     }
 
     struct Result
@@ -153,41 +115,27 @@ namespace Day05
 
     Ranges Uniquify_Ranges(Ranges ranges)
     {
-        while (true)
+        if (ranges.empty())
         {
-            bool changed = false;
-            for (int i = 0; i < static_cast<int>(ranges.size()); ++i)
+            return ranges;
+        }
+
+        std::ranges::sort(ranges);
+        auto new_ranges = Ranges{ranges.at(0)};
+
+        for (const auto [begin, end]: ranges | std::ranges::views::drop(1))
+        {
+            if (begin <= new_ranges.back().end)
             {
-                auto& first_range = ranges.at(i);
-                for (int j = 0; j < static_cast<int>(ranges.size()); ++j)
-                {
-                    if (i == j) continue;
-
-                    auto& second_range = ranges.at(j);
-
-                    auto disintersected = Range::Disintersect(first_range, second_range);
-
-                    if (std::pair{first_range, second_range} != disintersected)
-                    {
-                        changed = true;
-                        first_range = disintersected.first;
-                        second_range = disintersected.second;
-                    }
-                }
+                new_ranges.back().end = std::max(end, new_ranges.back().end);
             }
-
-            if (changed == false)
+            else
             {
-                break;
+                new_ranges.push_back(Range{begin, end});
             }
         }
 
-        [[maybe_unused]] const bool erased = std::erase_if(ranges, [](Range range)
-        {
-            return range.Amount_Of_Values() < 1;
-        });
-
-        return ranges;
+        return new_ranges;
     }
 
     std::int64_t Part2(Ranges ranges)
