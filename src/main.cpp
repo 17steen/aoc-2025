@@ -57,7 +57,8 @@ int main(int, char**)
             const auto then = std::chrono::system_clock::now();
             const auto result = func(input);
             const auto elapsed = std::chrono::system_clock::now() - then;
-            fmt::println("Result: {} in {}", result, elapsed);
+            using floating_millis = std::chrono::duration<double, std::milli>;
+            fmt::println("Result: {} in {}", result, std::chrono::duration_cast<floating_millis>(elapsed));
         }
         else
         {
