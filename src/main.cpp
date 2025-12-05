@@ -51,11 +51,13 @@ int main(int, char**)
     {
         if (day_map.contains(day_number->value()))
         {
-            auto input = read_all_input();
+            const auto input = read_all_input();
 
-            auto func = day_map.at(day_number->value());
-            auto result = func(input);
-            fmt::println("Result: {}", result);
+            const auto func = day_map.at(day_number->value());
+            const auto then = std::chrono::system_clock::now();
+            const auto result = func(input);
+            const auto elapsed = std::chrono::system_clock::now() - then;
+            fmt::println("Result: {} in {}", result, elapsed);
         }
         else
         {
