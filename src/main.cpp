@@ -33,6 +33,9 @@ static const auto day_map =
         {
             4, [](std::string_view sv) { return fmt::to_string(Day04::Solve(sv)); },
         },
+        {
+            5, [](std::string_view sv) { return fmt::to_string(Day05::Solve(sv)); },
+        },
     };
 
 std::string read_all_input()

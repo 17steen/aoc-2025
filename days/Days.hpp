@@ -26,3 +26,8 @@ namespace Day04
 {
     std::pair<std::string, std::string> Solve(std::string_view);
 }
+
+namespace Day05
+{
+    std::pair<std::string, std::string> Solve(std::string_view);
+}
