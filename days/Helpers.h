@@ -17,5 +17,21 @@ namespace aoc::helpers
             return std::nullopt;
         };
     };
+
+    constexpr static auto Empty()
+    {
+        return [] (auto&& thing)
+        {
+            return thing.empty();
+        };
+    }
+
+    constexpr static auto Not_Empty()
+    {
+        return [] (auto&& thing)
+        {
+            return !thing.empty();
+        };
+    }
 }
 

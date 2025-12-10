@@ -13,6 +13,7 @@ set(DAYS
         Day04.cpp
         Day05.cpp
         Day06.cpp
+        Day10.cpp
         Days.hpp
         Helpers.h
         LongInt.h
