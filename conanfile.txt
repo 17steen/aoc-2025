@@ -5,7 +5,7 @@ fmt/12.1.0
 ctre/3.10.0
 flux/0.4.0
 mdspan/0.6.0
-
+magic_enum/0.9.7
 
 [generators]
 CMakeDeps

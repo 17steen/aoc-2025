@@ -12,6 +12,7 @@
 #include <experimental/mdspan>
 
 #include "Days.hpp"
+#include "Helpers.h"
 
 namespace Day05
 {
@@ -80,7 +81,7 @@ namespace Day05
                                 return std::nullopt;
 
                             auto arr = std::array<Id, 2>{};
-                            flux::split_string(range_str, "-").filter_map(to_number<Id>()).take(2).output_to(arr.begin());
+                            flux::split_string(range_str, "-").filter_map(aoc::helpers::String_Converter<Id>()).take(2).output_to(arr.begin());
                             auto [begin, end] = arr;
                             return Range{
                                 .begin = begin,
