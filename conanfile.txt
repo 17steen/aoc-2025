@@ -6,7 +6,11 @@ ctre/3.10.0
 flux/0.4.0
 mdspan/0.6.0
 magic_enum/0.9.7
+z3/4.14.1
 
 [generators]
 CMakeDeps
 CMakeToolchain
+
+[layout]
+cmake_layout

@@ -10,6 +10,7 @@
 #include <map>
 #include <span>
 #include <scn/scan.h>
+#include <z3++.h>
 
 #include "Days.hpp"
 #include "Helpers.h"
@@ -44,7 +45,7 @@ namespace Day10
         Lights lights;
         std::vector<Button> button_masks;
         std::vector<IndicesButton> indices_button;
-        std::vector<std::int8_t> expected_joltages;
+        std::vector<int> expected_joltages;
     };
 
     std::string format_as(const ParseResult& result)
@@ -223,37 +224,57 @@ namespace Day10
 
     int Part2_One_Line(const ParseResult& one_result)
     {
-        auto size = one_result.expected_joltages.size();
-        auto execute_part_2 = [&]<auto N>(int& result)
+        auto context = z3::context{};
+        auto solver = z3::optimize{context};
+
+        auto button_presses = z3::expr_vector{context};
+        for (int i = 0; i < static_cast<int>(one_result.indices_button.size()); ++i)
         {
-            if (N == size)
+            auto int_const = context.int_const(fmt::format("current_joltage_{}", i).c_str());
+            solver.add(int_const >= 0);
+            button_presses.push_back(int_const);
+        }
+
+        // declare constant array
+        for (int i = 0; const auto expected_joltage: one_result.expected_joltages)
+        {
+            auto expected_joltage_const = context.int_val(expected_joltage);
+
+            auto vars = z3::expr_vector{context};
+
+            for (int k = 0; const auto& indices: one_result.indices_button)
             {
-                auto min = std::numeric_limits<int>::max();
-                auto reference = Reference<N>{};
-
-                auto indices_button = one_result.indices_button;
-                std::ranges::sort(indices_button, std::greater{}, [] (auto&& it) { return it.size(); });
-
-                auto expected_joltage = Array<N>{};
-                std::ranges::copy_n(one_result.expected_joltages.begin(), N, expected_joltage.begin());
-                reference.indices_button = indices_button;
-
-                auto state = State2<N>{};
-
-                result = Part2_Impl<N>(expected_joltage, reference, state, min);
+                for (std::int8_t index : indices)
+                {
+                    if (index == i)
+                    {
+                        vars.push_back(button_presses[k]);
+                    }
+                }
+                k++;
             }
-        };
 
-        auto result = 0;
+            auto sum = z3::sum(vars);
+            solver.add(sum == expected_joltage_const);
 
-        [&]<auto... Ns>(std::index_sequence<Ns...>)
+            ++i;
+        }
+
+
+        auto presses_count = context.int_const("presses_count");
+        solver.add(presses_count == z3::sum(button_presses));
+        solver.minimize(presses_count);
+
+        if (solver.check() != z3::sat)
         {
-            (execute_part_2.operator()<Ns>(result), ...);
-        }(std::make_index_sequence<10>{});
+            throw std::runtime_error{"unsat"};
+        }
 
+        auto model = solver.get_model();
+        auto result = model.eval(presses_count, true);
+        auto part2 = static_cast<int>(result.as_int64());
 
-        fmt::println("One: {}", result);
-        return result;
+        return part2;
     }
 
 
