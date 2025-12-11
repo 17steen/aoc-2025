@@ -122,68 +122,100 @@ namespace Day10
     }
 
 
-    template<std::size_t N>
+    template <std::size_t N>
     using Array = std::array<int8_t, N>;
+    template <std::size_t N>
+    using Span = std::span<const int8_t, N>;
 
-    template<std::size_t N>
+    template <std::size_t N>
     struct State2
     {
         Array<N> current_joltage;
         int button_presses = 0;
     };
 
-    template<std::size_t N>
+    template <std::size_t N>
     struct Reference
     {
-        std::vector<IndicesButton> indices_button;
-        Array<N> expected_joltage;
-        std::map<Array<N>, int> state_button_press_map;
+        std::span<const IndicesButton> indices_button;
+    };
+
+    struct Cache
+    {
+        int buttons_pressed = 0;
+        int distance_from_result = 0;
     };
 
     template <std::size_t N>
-    int Part2_Impl(Reference<N>& puzzle,
-                   const State2<N>& state, int& current_min)
-    {
-        if (puzzle.state_button_press_map.contains(state.current_joltage))
-        {
+    using Jotage_Count_Map = std::map<Array<N>, Cache>;
 
+    static constexpr auto MAX = std::numeric_limits<int>::max();
+
+    template <std::size_t N>
+    int Part2_Impl(const Array<N>& expected_joltage, Reference<N> puzzle,
+                   State2<N> state, int& current_min)
+    {
+        auto map = Jotage_Count_Map<N>{};
+
+        if (auto it = map.find(state.current_joltage); it != map.end())
+        {
+            auto& cached = it->second;
+            auto min = std::min(cached.buttons_pressed, state.button_presses);
+            cached.buttons_pressed = min;
+            return min + cached.distance_from_result;
         }
 
         if (state.button_presses >= current_min)
         {
-            return current_min;
+            return MAX;
         }
 
-        for (const auto& button : puzzle.indices_button)
+        if (state.current_joltage == expected_joltage)
         {
-            auto cpy = state;
+            map[state.current_joltage] = Cache{
+                .buttons_pressed = state.button_presses,
+                .distance_from_result = 0,
+            };
+            return state.button_presses;
+        }
+
+        // couldn't find
+        if (puzzle.indices_button.empty())
+        {
+            return MAX;
+        }
+
+        auto button = puzzle.indices_button.front();
+
+        auto& current_cache = map[state.current_joltage] = Cache{
+            .buttons_pressed = state.button_presses,
+            .distance_from_result = MAX,
+        };
+
+        for (;;)
+        {
+            auto new_reference = puzzle;
+            new_reference.indices_button = new_reference.indices_button.subspan(1);
+
+            auto total_button_presses = Part2_Impl(expected_joltage, new_reference, state, current_min);
+            auto distance_from_result = total_button_presses - state.button_presses;
+            current_cache.distance_from_result = std::min(current_cache.distance_from_result, distance_from_result);
+
+            if (total_button_presses < current_min)
+            {
+                current_min = total_button_presses;
+            }
+
             for (const auto index : button)
             {
-                cpy.current_joltage[index] += 1;
-            }
-
-            cpy.button_presses += 1;
-
-            if (cpy.current_joltage == puzzle.expected_joltage)
-            {
-                return cpy.button_presses;
-            }
-
-            const bool is_bigger = flux::zip(puzzle.expected_joltage, cpy.current_joltage)
-                .any([](auto&& tuple)
+                state.current_joltage[index] += 1;
+                if (state.current_joltage[index] > expected_joltage[index])
                 {
-                    auto&& [expected, current] = tuple;
-                    return current > expected;
-                });
-
-            if (is_bigger)
-            {
-                continue;
+                    return current_min;
+                }
             }
 
-            auto result = Part2_Impl<N>(puzzle, cpy, current_min);
-            current_min = std::min(result, current_min);
-
+            state.button_presses += 1;
         }
 
         return current_min;
@@ -197,13 +229,18 @@ namespace Day10
             if (N == size)
             {
                 auto min = std::numeric_limits<int>::max();
-                auto reference = typename Part2Data<N>::Reference{};
-                std::ranges::copy_n(one_result.expected_joltages.begin(), N, reference.expected_joltage.begin());
-                reference.indices_button = one_result.indices_button;
+                auto reference = Reference<N>{};
 
-                auto state = typename Part2Data<N>::State{};
+                auto indices_button = one_result.indices_button;
+                std::ranges::sort(indices_button, std::greater{}, [] (auto&& it) { return it.size(); });
 
-                result = Part2_Impl<N>(reference, state, min);
+                auto expected_joltage = Array<N>{};
+                std::ranges::copy_n(one_result.expected_joltages.begin(), N, expected_joltage.begin());
+                reference.indices_button = indices_button;
+
+                auto state = State2<N>{};
+
+                result = Part2_Impl<N>(expected_joltage, reference, state, min);
             }
         };
 
